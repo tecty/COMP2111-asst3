@@ -1,0 +1,69 @@
+\documentclass[a4paper,12pt,fleqn]{scrartcl}
+\usepackage[l2tabu,orthodox]{nag}% Old habits die hard. All the same, there are commands, classes and packages which are outdated and superseded. nag provides routines to warn the user about the use of those.
+
+\usepackage[all,error]{onlyamsmath}% Error on deprecated math commands like $$ $$.
+\usepackage[strict=true]{csquotes}
+
+%\usepackage{color}
+
+\usepackage{listings}
+\lstset{frame=single,framerule=0pt,language={C},showstringspaces=false,numbers=left,columns=fullflexible}
+
+
+% COMP2111-specific macros. See
+% http://www.cse.unsw.edu.au/~cs2111/18s1/LaTeX/primer.html
+\usepackage{2111defs2}
+\usepackage[colorlinks=true]{hyperref}
+
+\newcommand{\assn}[1]{{\color{red}\left\{#1\right\}}}
+\newcommand{\remark}[1]{{\sffamily\color{blue}{#1}}}
+
+% define some convenience macros specific to this task
+\newcommand{\perm}{\mathsf{perm}}
+%title variable
+\title{Assignment 3}
+\author{Ruofei HUANG(z5141448)\and
+Anqi ZHU(z5141541)
+}
+
+
+\newcommand{\variant}[3]{(#1:#2\mapsto #3)}
+\newcommand{\oldwhatever}[4]{\variant{#1}{#2}{\variant{#1[#2]}{#3}{#4}}}
+\newcommand{\whatever}[4]{\variant{#1}{#2\mapsto #3}{#4}}
+\newcommand{\ah}{\mathsf{a}}
+\newcommand{\be}{\mathsf{b}}
+\newcommand{\length}[1]{\left|#1\right|}
+\newcommand{\noof}[2]{\left\|#1\right\|_{#2}}
+
+\newcommand{\pre}{\mathit{pre}}
+\newcommand{\post}{\mathit{post}}
+\def\L{\mathcal{L}}
+\begin{document}
+\maketitle
+\section{Task 1}
+
+According to the specified problem statement in the assignment, 
+we could describe the syntactic data type $Dict$ as below.
+The encapsulated state is a dictionary word set $W$.
+\begin{align*}
+    &Dict = 
+    (
+        W = \phi,  \\
+        &\left( 
+            \begin{array}{l}
+                \textbf{proc}\ addword^W(\textbf{value}\ w)\cdot 
+                b, W:[ \ \True, b = b_0\And W = W_0\cup \{w\}] \ \\
+                \textbf{func}\ checkword^W(\textbf{value}\ w):\mathbb{B}\cdot
+                \textbf{var}\ b\cdot\ b, W:[ \ \True, b = (w\in W_0)];\ \textbf{return}\ b\\
+                \textbf{proc}\ delword^W(\textbf{value}\ w)\cdot
+                b, W:[ w\in W, b = b_0\And W = W_0 \backslash \{w\}]
+            \end{array}
+        \right)
+    )
+\end{align*}
+\section{Task 2}
+Now we would like to refine $Dict$ to a second data type $DictA$ where we replace $W$ with a trie $t$, 
+as specified in the assignment. 
+
+
+\end{document}
