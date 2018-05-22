@@ -1,0 +1,12 @@
+var subtree = t;
+for(i=0; word[i]!='\0'; i++){
+    if(CUTWORD(word, i) \in dom(t)){
+        //skip 
+    }
+    else{
+        // not exist a sub tree, create one 
+        subtree.cvec[word[i]-'a'] =  new tree()
+    }
+    subtree = popt(subtree, word[i]);
+}
+subtree.eow = 1;
