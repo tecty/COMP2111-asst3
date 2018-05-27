@@ -62,9 +62,9 @@ The encapsulated state is a dictionary word set $W$.
         &\left( 
             \begin{array}{l}
                 \PROC\ addword^{Dict}(\WORD w)\cdot 
-                b, W:[ \ \True, b = b_0\And W = W_0\cup \{w\}] \ \\
+                b, W:[\True, b = b_0\And W = W_0\cup \{w\}]\\
                 \FUNC\ checkword^{Dict}(\WORD w):\mathbb{B}\cdot
-                    \VAR\ b\cdot\ b, W:[ \ \True, b = (w\in W_0)];\ 
+                    \VAR\ b\cdot\ b, W:[\True, b = (w\in W_0)];\ 
                     \RETURN\ b\\
                 \PROC\ delword^{Dict}(\WORD w)\cdot
                 b, W:[ w\in W, b = b_0\And W = W_0 \backslash \{w\}]
@@ -111,7 +111,7 @@ $init^{DictA} = (i = 0)$ and operations given as follows.
         \}]\\
     \FUNC\ checkword^{DictA}(\WORD w) \mathbb{B}\cdot
         \VAR\ b\cdot b, t:\\
-        \qquad[\True, b = (w\in \domt)\And t = t_0 ];\ \RETURN\ b\\
+        \qquad[\True, b = (w\in \domt\And t = t_0)];\ \RETURN\ b\\
     \PROC\ delword^{DictA}(\WORD w)\cdot b, t:\\
         \qquad[\True , b = b_0\And
         (w \notin \domt \OR t\Ass t: w \mapsto 0)]\\ 
@@ -127,16 +127,55 @@ Since all our precondition of concrete is trivial which all of them are \True,
 we don't need to proof the condition ($3_f$).But condition ($4_f$) must be 
 checked for all three operations.\\
 For the $addword$ we proof:
-\begin{gather*}
-    sss
-\end{gather*}
+\begin{align*}
+    &pre_{addword^{Dict}}\subst{f(t_0)}{W}\And post_{addword^{DictA}}\\
+    \justification{Definition of $addword^{Dict}$ and $addword^{DictA}$ }
+    % 
+    & \True\subst{f(t_0)}{W} \And 
+        b = b_0\And t = t_0\cup \{w\mapsto 1\}\cup 
+        \{
+            w' < w \And w' \notin\domt | w' \mapsto 0
+        \}\\
+    %
+    \justification[\Implies]{Definition of $f$ }
+    &f(t)= f( t_0\cup \{w\mapsto 1\}\cup 
+    \{
+        w' < w \And w' \notin\domt | w'\mapsto 0
+    \})\\
+    \justification{Logic} 
+    &f(t)= f(t_0)\cup \{w\}\\ 
+    \justification{Definition of $addword^{Dict}$ and $addword^{DictA}$ }
+    &post_{addword^{Dict}}\subst{f(t_0),f(t)}{W_0, W}
+\end{align*}
 For the $checkword$ we proof:
-\begin{gather*}
-    sss
-\end{gather*}
+\begin{align*}
+    &pre_{checkword^{Dict}}\subst{f(t_0)}{W}\And post_{checkword^{DictA}}\\
+    \justification{Definition of $checkword^{DictA}$ and $checkword^{Dict}$}
+    &\True\subst{f(t_0)}{W} \And b = (w\in \domt\And t = t_0 )\\
+    %
+    \justification[\Implies]{Definition of $f$}
+    &b = (w \in f(t))\And t = t_0\\
+    \justification{Definition of $checkword^{DictA}$ and $checkword^{Dict}$}
+    & post_{checkword^{Dict}}\subst{f(t_0),f(t)}{W_0,W}
+\end{align*}
 For the $delword$ we proof:
-\begin{gather*}
-    sss
-\end{gather*}
+\begin{align*}
+    &pre_{delword^{Dict}}\subst{f(t_0)}{W}\And post_{delword^{DictA}}\\
+    \justification{Definition of $delword^{DictA}$ and $delword^{Dict}$}
+    &w\in f(t_0) \And b = b_0\And
+        (w \notin \domt \OR t\Ass t: w \mapsto 0)\\
+    \justification[\Implies]{Definition of $f$}
+    &f(t) = f(t_0)\backslash\{w\}\\
+    \justification{Definition of $delword^{DictA}$ and $delword^{Dict}$}
+    &post_{delword^{Dict}}\subst{f(t_0),f(t)}{W_0,W}
+\end{align*}
+
+\section{Task 3}
+We derive our code in to fours part by $init$ and its operations. 
+\subsection{init}
+\subsection{addword}
+\subsection{checkword}
+\subsection{delword}
+
 
 \end{document}
