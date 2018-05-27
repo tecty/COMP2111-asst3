@@ -102,10 +102,10 @@ which we can translate into a function from concrete to abstract values:
     \right\}
 \end{gather*}
 With that in mind we propose the initialisation predicate 
-$init^{DictA} = (i = 0)$ and operations given as follows.
+$init^{DictA} = (\domt =\{\epsilon\} \And f(t)= \phi )$ and operations given as follows.
 \begin{gather*}
     \PROC\ addword^{DictA}(\WORD w)\cdot b, t:\\
-        \qquad [ \ \True, b = b_0\And t = t_0\cup \{w\mapsto 1\}\cup 
+        \qquad [ \ \True, b = b_0\And t = t_0\cup \{w\mapsto 1\}\cup
         \{
             w' < w \And w' \notin \domt | w' \mapsto 0
         \}]\\
@@ -173,9 +173,59 @@ For the $delword$ we proof:
 \section{Task 3}
 We derive our code in to fours part by $init$ and its operations. 
 \subsection{init}
+From the spec we have:
+\begin{align*}
+    &\domt =\{\epsilon\} \And f(t)= \phi\\
+    \refstep{ass}{t \Ass \{\epsilon \mapsto 0\}}
+\end{align*}
+
 \subsection{addword}
+From the spec we have:
+\begin{gather*}
+    \PROC\ addword^{DictA}(\WORD w)\cdot \\
+        \qquad   
+        \nt{
+            b, t:[\True, b = b_0\And t = t_0\cup \{w\mapsto 1\}\cup 
+            \{
+                w' < w \And w' \notin \domt | w' \mapsto 0
+            \}]
+        }{(A1)}
+\end{gather*}
+\begin{align*}
+    \lrefstep{(A1)}{c-frame}{
+        t:[\True,t = t_0\cup \{w\mapsto 1\}\cup 
+        \{
+            w' < w \And w' \notin \domt | w' \mapsto 0
+        \}]
+    }
+\end{align*}
 \subsection{checkword}
+From the spec we have:
+\begin{gather*}
+    \FUNC\ checkword^{DictA}(\WORD w)\\
+        \qquad
+        \nt{
+            \mathbb{B}\cdot \VAR\ b\cdot b, t:
+            [\True, b = (w\in \domt\And t = t_0)];\ \RETURN\ b
+        }{(C1)}
+\end{gather*}
+\begin{align*}
+    \lrefstep{(C1)}{c-frame}{
+        \mathbb{B}\cdot \VAR\ b\cdot b:
+        [\True, b = (w\in \domt\And t = t_0)];\ \RETURN\ b
+    }
+\end{align*}
 \subsection{delword}
+From the spec we have:
+\begin{gather*}
+    \PROC\ delword^{DictA}(\WORD w)\\
+        \qquad
+        \nt{
+            \cdot b, t:
+            [\True , b = b_0\And
+            (w \notin \domt \OR t\Ass t: w \mapsto 0)]
+        }{(D1)}    
+\end{gather*}
 
 
 \end{document}
