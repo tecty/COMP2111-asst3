@@ -234,17 +234,17 @@ pre and post condition:
     \lrefstep{(C2)}{if}{
         \IF ~ index < |w| ~ \\ 
         &\THEN 
-        \nt{(C3-1)}{
+        \nt{
             b,indexp[ index < |w|\And \pre{(C2)}, \post{(C2)}]
-        }\\
+        }{(C3-1)} \\
         &\ELSE 
-        \nt{(C3-2)}{
+        \nt{
             b,index[ index < |w| \And \pre{(C2)}, \post{(C2)}]
-        }\\
+        }{(C3-2)}\\
         &\FI\\
     }
     \lrefstep{(C3-1)}{func}{
-        return doCheckword(w, index +1);
+        \RETURN\ doCheckword(w, index +1);
     }
 \end{align*}
 \subsection{delword}
