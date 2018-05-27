@@ -48,6 +48,7 @@ Anqi ZHU(z5141541)
 \subsection{Type $word$ }
 This definiation of wrod is basicly from requirement of assignment 3
 % TODO: Add a more definition here. 
+% TODO: Add definition of |w|
 We say two words $ v,w$ that v is an absolute prefix of w as $v < w$ which is 
 define as $ v \leq w \And v \neq w $.
 \subsection{abstract Data Type $Dict$ }
@@ -212,7 +213,38 @@ From the spec we have:
 \begin{align*}
     \lrefstep{(C1)}{c-frame}{
         \mathbb{B}\cdot \VAR\ b\cdot b:
-        [\True, b = (w\in \domt\And t = t_0)];\ \RETURN\ b
+        [\True, b = (w\in \domt)];\ \RETURN\ b
+    }\\
+    \refstep{proc, $ 0 \leq |w|$ }
+    {
+        \RETURN\ doCheckword(w, 0);
+    }
+\end{align*}
+Where we define a recursive procedure call to do the dirty work also align the 
+pre and post condition: 
+\begin{gather*}
+    \FUNC\ doCheckword(\WORD w, \VAR\ index:\nat )\\
+        \qquad
+        \nt{
+            \mathbb{B}\cdot \VAR\ b\cdot b, \VAR\ index
+            [prefix \leq w, b = (w\in \domt)];\ \RETURN\ b
+        }{(C2)}
+\end{gather*}
+\begin{align*}
+    \lrefstep{(C2)}{if}{
+        \IF ~ index < |w| ~ \\ 
+        &\THEN 
+        \nt{(C3-1)}{
+            b,indexp[ index < |w|\And \pre{(C2)}, \post{(C2)}]
+        }\\
+        &\ELSE 
+        \nt{(C3-2)}{
+            b,index[ index < |w| \And \pre{(C2)}, \post{(C2)}]
+        }\\
+        &\FI\\
+    }
+    \lrefstep{(C3-1)}{func}{
+        return doCheckword(w, index +1);
     }
 \end{align*}
 \subsection{delword}
