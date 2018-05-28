@@ -45,17 +45,35 @@ Anqi ZHU(z5141541)
 \begin{document}
 \maketitle
 \section{Task 1}
-\subsection{Type $word$ }
-This definiation of wrod is basicly from requirement of assignment 3
+\subsection{Some useful symbol definitions about manipulating $\textbf{word}$s }
+A $\textbf{word}$, as mentioned in the assignment specification, is defined as a 
+finite sequence of letters over $L = {'a', .., 'z'}$. The specification already 
+defines the relationship of '$\leq$' between a $\textbf{word}\ v$ and a 
+$\textbf{word}\ w$ (which means $v$ is a prefix of $w$ or $w$ itself if 
+$v\leq w$). \\\\
 % TODO: Add a more definition here. 
+So we would like to further this definition and define a relationship of '$<$' 
+when $v$ is a pure prefix of $w$ which cannot be $w$ itself if $v < w$. That 
+means:
+\begin{align*}
+    v < w \Equiv v\leq w \And v\neq w
+\end{align*}
 % TODO: Add definition of |w|
-We say two words $ v,w$ that v is an absolute prefix of w as $v < w$ which is 
-define as $ v \leq w \And v \neq w $.
-\subsection{abstract Data Type $Dict$ }
+We also would like to define a symbol $|w|$ that represents the length of a 
+$word\ w$.We formally define this by:
+\begin{align*}
+    |w| = 
+    \begin{cases}
+        0 & \text{if } w = \epsilon\\
+        1 + |w'| & \text{else }
+    \end{cases}\\\\
+    where\ \exists l\in L\ \{w = w'\ l\}
+\end{align*} 
+\subsection{Syntactic(Abstract) Data Type $Dict$ }
 % TODO: init^{Dict} is missing?
-According to the specified problem statement in the assignment, 
-we could describe the syntactic data type $Dict$ as below.
-The encapsulated state is a dictionary word set $W$.
+Inspired by the program sketch and the assignment statement, we could describe 
+the syntactic data type $Dict$ as below (the encapsulated state would be a 
+dictionary word set $W$).
 \begin{align*}
     &Dict = 
     (
@@ -74,51 +92,61 @@ The encapsulated state is a dictionary word set $W$.
     )
 \end{align*}
 \section{Task 2}
-Now we would like to refine $Dict$ to a second data type $DictA$ where we 
-replace $W$ with a trie $t$,the corresponding trie domain $D=\domt$.
-It represents the set of all tries according to the domain. 
-We shall use this definition later in our refinement.\\
-
-\subsection{Datat Invariant} 
-\begin{gather*}
-    \All{w \in \domt,t(w)= 1, w' \leq w}{w' \in \domt}
-\end{gather*}
-
-
+% \subsection{Data Invariant} 
+% \begin{gather*}
+%     \All{w \in \domt,t(w)= 1, w' \leq w}{w' \in \domt}
+% \end{gather*}
 \subsection{Data Type Refinement}
-This suggests we should first build up a inductively defined predicate to ensure
- the provable relations between
-$DictA$ and $Dict$.
+Now we would like to refine $Dict$ to a second data type $DictA$ where we 
+replace $W$ with a trie $t$. We would also like to define the domain of a $t$ as
+$\domt$. We shall use this definition later in our refinement.
+\subsubsection{Inductive Relation Predicate}
+The correspondence between the two state space $W$ and $t$ is captured by the 
+inductively defined predicate. 
 \begin{gather*}
     r = (W = 
     \{ 
         w \in \domt| t(w)=1
     \})
 \end{gather*}
-which we can translate into a function from concrete to abstract values:
+which we can translate into a relation function that transfers a concrete 
+state space $t$ to an abstract state space $W$:
 \begin{gather*}
     f(t) = 
     \left\{
         w \in  \domt | t(w) = 1
     \right\}
 \end{gather*}
-With that in mind we propose the initialisation predicate 
-$init^{DictA} = (\domt =\{\epsilon\} \And f(t)= \phi )$ and operations given as follows.
+With that in mind, we can propose the initialisation predicate and corresponding
+operations of $DictA$.
+\subsubsection{Initialisation Predicate}
+We would like to define the initialisation predicate of DictA as follows:
+\begin{gather*}
+    init^{DictA} = (t\Ass\{\epsilon\mapsto 0\}) 
+\end{gather*}
+\subsubsection{Operations}
+We would like to define the operations of DictA as follows:
 \begin{gather*}
     \PROC\ addword^{DictA}(\WORD w)\cdot b, t:\\
-        \qquad [ \ \True, b = b_0\And t = t_0\cup \{w\mapsto 1\}\cup
-        \{
-            w' < w \And w' \notin \domt | w' \mapsto 0
-        \}]\\
-    \FUNC\ checkword^{DictA}(\WORD w) \mathbb{B}\cdot
+        \qquad [ \ \True, b = b_0\And \\
+        \qquad\qquad t = \left( 
+                \begin{array}{l}
+                    w\notin \domt\And t = {t_0\cup\{w\mapsto 1\}\cup\{w' < w\And 
+                    w'\notin \domt | w'\mapsto 0\}}\\
+                    w\in\domt\And t = (t_0:w\mapsto 1)\\
+                \end{array}
+            \right)]\\
+    \FUNC\ checkword^{DictA}(\WORD w):\mathbb{B}\cdot
         \VAR\ b\cdot b, t:\\
-        \qquad[\True, b = (w\in \domt\And t = t_0)];\ \RETURN\ b\\
+        \qquad[\True, t = t_0\And b = (w\in \domt\And t(w)=1)];\ \RETURN\ b\\
     \PROC\ delword^{DictA}(\WORD w)\cdot b, t:\\
         \qquad[\True , b = b_0\And
-        (w \notin \domt \OR t\Ass t: w \mapsto 0)]\\ 
+        (w \notin \domt \OR t\Ass(t: w \mapsto 0))]\\ 
 \end{gather*} 
 \subsection{Proof of Refinement}
-We need start the proof with the initialisation:
+Now we would like to start proving the refinements of the initialization and 
+each operation from $t$ to $W$. \\\\
+We start from proving the refinement between $init^{DictA}$ and $init^{Dict}$.
 \begin{align*}
     &init^{DictA} \Implies init^{Dict}\subst{f(t)}{W}\\
     \justification{Definition of $init^{DictA}$ and $init^{Dict}$}
