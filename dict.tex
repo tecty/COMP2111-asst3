@@ -9,7 +9,7 @@
 \usepackage{listings}
 \lstset{frame=single,framerule=0pt,language={C},showstringspaces=false,numbers=left,columns=fullflexible}
 
-
+ 
 % COMP2111-specific macros. See
 % http://www.cse.unsw.edu.au/~cs2111/18s1/LaTeX/primer.html
 \usepackage{2111defs2}
@@ -50,15 +50,14 @@ A $\textbf{word}$, as mentioned in the assignment specification, is defined as a
 finite sequence of letters over $L = {'a', .., 'z'}$. The specification already 
 defines the relationship of '$\leq$' between a $\textbf{word}\ v$ and a 
 $\textbf{word}\ w$ (which means $v$ is a prefix of $w$ or $w$ itself if 
-$v\leq w$). \\\\
-% TODO: Add a more definition here. 
+$v\leq w$). 
+\\\\
 So we would like to further this definition and define a relationship of '$<$' 
-when $v$ is a pure prefix of $w$ which cannot be $w$ itself if $v < w$. That 
+when $v$ is a proper prefix of $w$ which cannot be $w$ itself if $v < w$. That 
 means:
 \begin{align*}
     v < w \Equiv v\leq w \And v\neq w
 \end{align*}
-% TODO: Add definition of |w|
 We also would like to define a symbol $|w|$ that represents the length of a 
 $word\ w$.We formally define this by:
 \begin{align*}
@@ -82,8 +81,9 @@ dictionary word set $W$).
             \begin{array}{l}
                 \PROC\ addword^{Dict}(\WORD w)\cdot 
                 b, W:[\True, b = b_0\And W = W_0\cup \{w\}]\\
-                \FUNC\ checkword^{Dict}(\WORD w):\mathbb{B}\cdot
-                    \VAR\ b\cdot\ b, W:[\True, b = (w\in W_0)];\ 
+                \FUNC\ checkword^{Dict}(\WORD w):\\
+                    \qquad \mathbb{B}\cdot
+                    \VAR\ b\cdot\ b, W:[\True, b = (w\in W)\And W = W_0];\ 
                     \RETURN\ b\\
                 \PROC\ delword^{Dict}(\WORD w)\cdot
                 b, W:[ w\in W, b = b_0\And W = W_0 \backslash \{w\}]
@@ -183,7 +183,7 @@ For the $checkword$ we proof:
     &\True\subst{f(t_0)}{W} \And b = (w\in \domt\And t = t_0 )\\
     %
     \justification[\Implies]{Definition of $f$}
-    &b = (w \in f(t))\And t = t_0\\
+    &b = (w \in f(t)\And t(w)= 1)\And t = t_0\\
     \justification{Definition of $checkword^{DictA}$ and $checkword^{Dict}$}
     & post_{checkword^{Dict}}\subst{f(t_0),f(t)}{W_0,W}
 \end{align*}
@@ -209,7 +209,8 @@ From the spec we have:
 \end{align*}
 
 \subsection{addword}
-From the spec we have:
+From the spec\footnote{Define in the Assignment 3 requirement of cs2111}
+ we have:
 \begin{gather*}
     \PROC\ addword^{DictA}(\WORD w)\cdot \\
         \qquad   
