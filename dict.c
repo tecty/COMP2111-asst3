@@ -83,4 +83,5 @@ void delword (const Dict r, const word w){
 }
 void barf(char *s){
     fprintf(stderr, "%s\n",s);
+    exit(1);
 }
