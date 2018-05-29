@@ -18,8 +18,6 @@
 \newcommand{\assn}[1]{{\color{red}\left\{#1\right\}}}
 \newcommand{\remark}[1]{{\sffamily\color{blue}{#1}}}
 
-% define some convenience macros specific to this task
-\newcommand{\perm}{\mathsf{perm}}
 %title variable
 \title{Assignment 3}
 \author{Ruofei HUANG(z5141448)\and
@@ -32,8 +30,6 @@ Anqi ZHU(z5141541)
 
 % some old custom command
 \newcommand{\variant}[3]{(#1:#2\mapsto #3)}
-\newcommand{\oldwhatever}[4]{\variant{#1}{#2}{\variant{#1[#2]}{#3}{#4}}}
-\newcommand{\whatever}[4]{\variant{#1}{#2\mapsto #3}{#4}}
 \newcommand{\ah}{\mathsf{a}}
 \newcommand{\be}{\mathsf{b}}
 \newcommand{\length}[1]{\left|#1\right|}
@@ -49,7 +45,7 @@ Anqi ZHU(z5141541)
 A $\textbf{word}$, as mentioned in the assignment specification, is defined as a 
 finite sequence of letters over $L = \{'a', .., 'z'\}$. The specification 
 already defines the relationship of '$\leq$' between a $\textbf{word}\ v$ and a 
-$\textbf{word}\ w$ (which means $v$ is a prefix of $w$ or $w$ itself if 
+$\textbf{word}\ w$ (this means $v$ is a prefix of $w$ or $w$ itself if 
 $v\leq w$). 
 \\\\
 So we would like to further this definition and define a relationship of '$<$' 
@@ -69,7 +65,6 @@ $word\ w$.We formally define this by:
     where\ \exists l\in L\ \{w = w'\ l\}
 \end{align*} 
 \subsection{Syntactic(Abstract) Data Type $Dict$ }
-% TODO: init^{Dict} is missing?
 Inspired by the program sketch and the assignment statement, we could describe 
 the syntactic data type $Dict$ as below (the encapsulated state would be a 
 dictionary word set $W$).
@@ -81,8 +76,8 @@ dictionary word set $W$).
             \begin{array}{l}
                 \PROC\ addword^{Dict}(\WORD w)\cdot 
                 b, W:[\True, b = b_0\And W = W_0\cup \{w\}]\\
-                \FUNC\ checkword^{Dict}(\WORD w):\\
-                    \qquad \mathbb{B}\cdot
+                \FUNC\ checkword^{Dict}(\WORD w):\mathbb{B}\cdot\\
+                    \qquad 
                     \VAR\ b\cdot\ b, W:[\True, b = (w\in W)\And W = W_0];\ 
                     \RETURN\ b\\
                 \PROC\ delword^{Dict}(\WORD w)\cdot
@@ -92,25 +87,21 @@ dictionary word set $W$).
     )
 \end{align*}
 \section{Task 2}
-% \subsection{Data Invariant} 
-% \begin{gather*}
-%     \All{w \in \domt,t(w)= 1, w' \leq w}{w' \in \domt}
-% \end{gather*}
 \subsection{Data Type Refinement}
 Now we would like to refine $Dict$ to a second data type $DictA$ where we 
 replace $W$ with a trie $t$. We would also like to define the domain of a $t$ as
 $\domt$. We shall use this definition later in our refinement.
 \subsubsection{Inductive Relation Predicate}
 The correspondence between the two state space $W$ and $t$ is captured by the 
-inductively defined predicate. 
+inductively defined predicate as follows:
 \begin{gather*}
     r = (W = 
     \{ 
         w \in \domt| t(w)=1
     \})
 \end{gather*}
-which we can translate into a relation function that transfers a concrete 
-state space $t$ to an abstract state space $W$:
+We can translate this into a relation function that transfers a concrete 
+state space $t$ to an abstract state space $W$. The function is as follows:
 \begin{gather*}
     f(t) = 
     \left\{
@@ -135,42 +126,44 @@ We would like to define the operations of DictA as follows:
         \qquad[\True, t = t_0\And b = (\All{w' \leq w}{w'\in \domt} \And t(w)=1)];\ \RETURN\ b\\
     \PROC\ delword^{DictA}(\WORD w)\cdot b, t:\\
         \qquad[\True , b = b_0\And
-        (w \notin \domt \OR t\Ass(t: w \mapsto 0))]\\ 
+        (w \notin \domt \OR t = (t: w \mapsto 0))]\\ 
 \end{gather*} 
 \subsection{Proof of Refinement}
 Now we would like to start proving the refinements of the initialization and 
-each operation from $t$ to $W$. \\\\
+each operation from $t$ to $W$. 
+\subsubsection{Refinement proof for $init$}
 We start from proving the refinement between $init^{DictA}$ and $init^{Dict}$.
 \begin{align*}
     &init^{DictA} \Implies init^{Dict}\subst{f(t)}{W}\\
     \justification{Definition of $init^{DictA}$ and $init^{Dict}$}
     & \All {w \in \domt }{t(w)= 0} \Implies W = \phi
 \end{align*}
-Since all our precondition of concrete is trivial which all of them are \True, 
-we don't need to proof the condition ($3_f$).But condition ($4_f$) must be 
-checked for all three operations.\\
-For the $addword$ we proof:
+Then we move on to prove the refinement of defined operations of $Dict$ and 
+$DictA$. We don't need to prove the validity of the condition ($3_f$) for any 
+operations since their preconditions are always \True. We only need to check the 
+validity of the condition ($4_f$) in all three operations.
+\subsubsection{Refinement proof for $addword$}
 \begin{align*}
     &pre_{addword^{Dict}}\subst{f(t_0)}{W}\And post_{addword^{DictA}}\\
     \justification{Definition of $addword^{Dict}$ and $addword^{DictA}$ }
     % 
     & \True\subst{f(t_0)}{W} \And 
-        b = b_0\And t = t_0\cup \{w\mapsto 1\}\cup 
+        b = b_0\And t = t_0\backslash\{w\mapsto 0 \}\cup \{w\mapsto 1\}\cup 
         \{
             w' < w \And w' \notin\domt | w' \mapsto 0
         \}\\
     %
     \justification[\Implies]{Definition of $f$ }
-    &f(t)= f( t_0\cup \{w\mapsto 1\}\cup 
+    &f(t)= f( t_0\backslash\{w\mapsto 0 \}\cup \{w\mapsto 1\}\cup 
     \{
         w' < w \And w' \notin\domt | w'\mapsto 0
     \})\\
-    \justification{Logic} 
+    \justification{Logic, only $w$ maps to 1 in $t$(only $w$ is newly added into $W$)} 
     &f(t)= f(t_0)\cup \{w\}\\ 
     \justification{Definition of $addword^{Dict}$ and $addword^{DictA}$ }
     &post_{addword^{Dict}}\subst{f(t_0),f(t)}{W_0, W}
 \end{align*}
-For the $checkword$ we proof:
+\subsubsection{Refinement proof for $checkword$}
 \begin{align*}
     &pre_{checkword^{Dict}}\subst{f(t_0)}{W}\And post_{checkword^{DictA}}\\
     \justification{Definition of $checkword^{DictA}$ and $checkword^{Dict}$}
@@ -182,12 +175,12 @@ For the $checkword$ we proof:
     \justification{Definition of $checkword^{DictA}$ and $checkword^{Dict}$}
     & post_{checkword^{Dict}}\subst{f(t_0),f(t)}{W_0,W}
 \end{align*}
-For the $delword$ we proof:
+\subsubsection{Refinement proof for $delword$}
 \begin{align*}
     &pre_{delword^{Dict}}\subst{f(t_0)}{W}\And post_{delword^{DictA}}\\
     \justification{Definition of $delword^{DictA}$ and $delword^{Dict}$}
     &w\in f(t_0) \And b = b_0\And
-        (w \notin \domt \OR t\Ass t: w \mapsto 0)\\
+        (w \notin \domt \OR t =(t: w \mapsto 0))\\
     \justification[\Implies]{Definition of $f$}
     &f(t) = f(t_0)\backslash\{w\}\\
     \justification{Definition of $delword^{DictA}$ and $delword^{Dict}$}
