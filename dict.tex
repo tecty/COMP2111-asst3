@@ -549,6 +549,14 @@ From the spec we have:
     \refstep{proc, $ 0 \leq |w|$ and $\epsilon\in\domt$ since 
         $init^{DictA}$}{
         doDelword(w, 0);
-    }
+    } 
 \end{align*}
+\subsection{Task 4}
+Now we would translate our data refinement to C functions to match the
+prototypes given in dict.h. There are some significant differences between the 
+structure of a trie used in c functions and in our data refinement (for example,
+the tries in c functions can be operated as nodes but they are operated as sets
+in our data refinement). However, it should be noted that the logic used on both
+sides is the same (they both use recursive call to derive the final result).
+\lstinputlisting{dict.c}
 \end{document}
