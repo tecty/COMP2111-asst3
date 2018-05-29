@@ -232,6 +232,8 @@ of this function is to pop the first given letters of a given word.
         ]; \RETURN\ w'  
     }{(P1)}
 \end{gather*}
+% TODO: derive code for popWord 
+
 
 \subsection{addword}
 From the spec\footnote{Definition of this is in the Assignment 3 requirements of
@@ -281,7 +283,7 @@ pre and post condition:
         \qquad
         \nt{
             \mathbb{B}\cdot \VAR\ b\cdot b, \VAR\ index
-            [prefix \leq w, b = (w\in \domt)];\ \RETURN\ b
+            [index \leq w, b = (w\in \domt\And t(w)=1)];\ \RETURN\ b
         }{(C2)}
 \end{gather*}
 \begin{align*}
@@ -293,12 +295,24 @@ pre and post condition:
         }{(C3-1)} \\
         &\ELSE 
         \nt{
-            b,index[ index < |w| \And \pre{(C2)}, \post{(C2)}]
+            b,index[ index \geq |w| \And \pre{(C2)}, \post{(C2)}]
         }{(C3-2)}\\
         &\FI\\
     }
+    % TODO: try to use an early return, but there is not in Toy languague
+    %       How to check whether the prefix is in the dom(t) 
+    \lrefstep{(C3-1)}{if}{
+        \IF ~(POPWORD(w,index)\in \domt)~\\
+        &\THEN \\ 
+        &\ELSE \\
+        &\FI \\
+    }
     \lrefstep{(C3-1)}{func}{
         \RETURN\ doCheckword(w, index +1);
+    }\\
+    \lrefstep{(C3-2)}{$index \geq |w| \And index \leq |w| \Implies 
+    index = |w|$ and definition of $\post{(C2)}$}{
+        \RETURN\ (w\in \domt \And t(w) = 1)
     }
 \end{align*}
 \subsection{delword}
