@@ -249,9 +249,84 @@ cs2111.} we have:
 \begin{align*}
     \lrefstep{(A1)}{c-frame}{
         t:[\True,t = t_0\cup \{w\mapsto 1\}\cup 
-        \{
-            w' < w \And w' \notin \domt | w' \mapsto 0
-        \}]
+        \{w' < w \And w' \notin \domt | w' \mapsto 0\}]
+    }\\
+    \refstep{proc, $ 0 \leq |w|$ and $\epsilon\in\domt$ since 
+        $init^{DictA}$}{
+        doAddword(w, 0)
+    }
+\end{align*}
+\subsubsection{Definition of doAddword}
+\begin{gather*}
+    \PROC\ doAddword^{DictA}(\VALUE\ w,\VALUE\ index)\\
+        \qquad
+        \nt{
+            t:\left[\begin{array}{l}
+                \All{w'\leq w \And |w'|\leq index}{w'\in \domt},\\
+                t = t_0\cup \{w\mapsto 1\}\cup 
+                \{w' < w \And w' \notin \domt | w' \mapsto 0\}]
+            \end{array}
+            \right]
+        }{(A2)}
+\end{gather*}
+\subsubsection{Refinement of the procedure in doAddword}
+\begin{align*}
+    \lrefstep{(A2)}{if}{
+        \IF ~ index < |w| ~ \\ 
+        &\THEN 
+        \nt{
+            t:[ index < |w|\And \pre{(A2)}, \post{(A2)}]
+        }{(A3-1)} \\
+        &\ELSE 
+        \nt{
+            t:[ index \geq |w| \And \pre{(A2)}, \post{(A2)}]
+        }{(A3-2)}\\
+        &\FI\\
+    }
+    \lrefstep{(A3-1)}{seq}{
+        \nt{
+            t:\left[\begin{array}{l}
+                index \geq |w| \And \pre{(A2)}, \\
+                index \geq |w| \And \pre{(A2)}
+                \And POPWORD(w, index+1)\in\domt
+            \end{array}\right]
+        }{(A3-3)}
+        \\
+        &
+        \nt{
+            t:\left[\begin{array}{l}
+                index \geq |w| \And \pre{(A2)}
+                \And POPWORD(w, index+1)\in\domt,\\
+                \post{(A2)}
+            \end{array}\right]
+        }{(A3-4)}
+    }\\
+    \lrefstep{(A3-3)}{if}{
+        \IF ~(POPWORD(w,index+1)\in \domt)~\\
+        &\THEN\ \nt{
+            t:\left[\begin{array}{l}
+                \pre{(A3-3)}\And POPWORD(w,index+1)\in\domt,\\
+                \post{(A3-3)}
+            \end{array}\right]
+        }{(A3-3-1)} \\ 
+        &\ELSE\ \nt{
+            t:\left[\begin{array}{l}
+                \pre{(A3-3)}\And POPWORD(w,index+1)\notin\domt,\\
+                \post{(A3-3)}
+            \end{array}\right]
+        }{(A3-3-2)}\\
+        &\FI \\
+    }
+    \lrefstep{(A3-3-1)}{$POPWORD(w,index+1)\in\domt 
+        \Implies \post{(A3-3)}=\True$}{
+        skip;
+    }\\
+    \lrefstep{(A3-3-2)}{Ass}{
+        t \Ass t\cup \{ popWord(w,index) \mapsto 0\}
+    }\\
+    \lrefstep{(A3-4)}{$index \geq |w| \And index \leq |w| \Implies 
+    index = |w|$ and definition of $\post{(A2)}$}{
+        doAddword(w, index +1);
     }
 \end{align*}
 \subsection{checkword}
@@ -360,7 +435,8 @@ From the spec we have:
     \PROC\ doDelword^{DictA}(\VALUE\ w,\VALUE\ index)\\
         \qquad
         \nt{
-            t:[\True ,(w \notin \domt \OR t= t_0: w \mapsto 0)]
+            t:[\All{w'\leq w \And |w'|\leq index}{w'\in \domt},
+            (w \notin \domt \OR t= t_0: w \mapsto 0)]
         }{(D2)}
 \end{gather*}
 \subsubsection{Refinement of the procedure in doDelword}
@@ -369,24 +445,24 @@ From the spec we have:
         \IF ~ index < |w| ~ \\ 
         &\THEN 
         \nt{
-            b:[ index < |w|\And \pre{(D2)}, \post{(D2)}]
+            t:[ index < |w|\And \pre{(D2)}, \post{(D2)}]
         }{(D3-1)} \\
         &\ELSE 
         \nt{
-            b:[ index \geq |w| \And \pre{(D2)}, \post{(D2)}]
+            t:[ index \geq |w| \And \pre{(D2)}, \post{(D2)}]
         }{(C3-2)}\\
         &\FI\\
     }
     \lrefstep{(D3-1)}{if}{
         \IF ~(POPWORD(w,index+1)\in \domt)~\\
         &\THEN\ \nt{
-            b:\left[\begin{array}{l}
+            t:\left[\begin{array}{l}
                 \pre{(D3-1)}\And POPWORD(w,index+1)\in\domt,\\
                 \post{(D2)}
             \end{array}\right]
         }{(D3-1-1)} \\ 
         &\ELSE\ \nt{
-            b:\left[\begin{array}{l}
+            t:\left[\begin{array}{l}
                 \pre{(D3-1)}\And POPWORD(w,index+1)\notin\domt,\\
                 \post{(D2)}
             \end{array}\right]
@@ -400,7 +476,7 @@ From the spec we have:
                 \Implies \post(D2) =\True$ }{
         skip;
     }\\
-    \lrefstep{(C3-2)}{$index \geq |w| \And index \leq |w| \Implies 
+    \lrefstep{(D3-2)}{$index \geq |w| \And index \leq |w| \Implies 
     index = |w|$ and definition of $\post{(D2)}$}{
         t\Ass t: w\mapsto 0;
     }
