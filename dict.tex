@@ -562,6 +562,7 @@ trie in c functions uses sub-tries to recursively find the next extend prefix/wo
 while in our data refinement, we uses the extension of a substring of $w$ ($POPWORD$)
 to represent the next level of sub-trie.\\\\
 However, it should be noted that the logic used on both sides is the same (they 
-both use recursive call to derive the final result).
+both use recursive call to derive the final result). So we can say that our data 
+refinement is a well representation of our c functions.
 \lstinputlisting{dict.c}
 \end{document}
