@@ -135,7 +135,7 @@ We would like to define the operations of DictA as follows:
         \qquad[\True, t = t_0\And b = (\All{w' \leq w}{w'\in \domt} \And t(w)=1)];\ \RETURN\ b\\
     \PROC\ delword^{DictA}(\WORD w)\cdot b, t:\\
         \qquad[\True , b = b_0\And
-        (w \notin \domt \OR t\Ass(t: w \mapsto 0))]\\ 
+        (w \notin \domt \OR t= t_0: w \mapsto 0)]\\ 
 \end{gather*} 
 \subsection{Proof of Refinement}
 Now we would like to start proving the refinements of the initialization and 
@@ -187,7 +187,7 @@ For the $delword$ we proof:
     &pre_{delword^{Dict}}\subst{f(t_0)}{W}\And post_{delword^{DictA}}\\
     \justification{Definition of $delword^{DictA}$ and $delword^{Dict}$}
     &w\in f(t_0) \And b = b_0\And
-        (w \notin \domt \OR t\Ass t: w \mapsto 0)\\
+        (w \notin \domt \OR t= t_0: w \mapsto 0)\\
     \justification[\Implies]{Definition of $f$}
     &f(t) = f(t_0)\backslash\{w\}\\
     \justification{Definition of $delword^{DictA}$ and $delword^{Dict}$}
@@ -307,8 +307,6 @@ its linking procedure is as follows.
         }{(C3-2)}\\
         &\FI\\
     }
-    % TODO: try to use an early return, but there is not in Toy languague
-    %       How to check whether the prefix is in the dom(t) 
     \lrefstep{(C3-1)}{if}{
         \IF ~(POPWORD(w,index+1)\in \domt)~\\
         &\THEN\ \nt{
@@ -345,9 +343,66 @@ From the spec we have:
         \nt{
             \cdot b, t:
             [\True , b = b_0\And
-            (w \notin \domt \OR t\Ass t: w \mapsto 0)]
-        }{(D1)}    
+            (w \notin \domt \OR t= t_0: w \mapsto 0)]
+        }{(D1)}
 \end{gather*}
-
-
+\begin{align*}
+    \lrefstep{(D1)}{c-frame}{
+        t:[\True ,(w \notin \domt \OR t= t_0: w \mapsto 0)]
+    }\\
+    \refstep{proc, $ 0 \leq |w|$ and $\epsilon\in\domt$ since 
+        $init^{DictA}$}{
+        doDelword(w, 0);
+    }
+\end{align*}
+\subsubsection{Definition of doDelword}
+\begin{gather*}
+    \PROC\ doDelword^{DictA}(\VALUE\ w,\VALUE\ index)\\
+        \qquad
+        \nt{
+            t:[\True ,(w \notin \domt \OR t= t_0: w \mapsto 0)]
+        }{(D2)}
+\end{gather*}
+\subsubsection{Refinement of the procedure in doDelword}
+\begin{align*}
+    \lrefstep{(D2)}{if}{
+        \IF ~ index < |w| ~ \\ 
+        &\THEN 
+        \nt{
+            b:[ index < |w|\And \pre{(D2)}, \post{(D2)}]
+        }{(D3-1)} \\
+        &\ELSE 
+        \nt{
+            b:[ index \geq |w| \And \pre{(D2)}, \post{(D2)}]
+        }{(C3-2)}\\
+        &\FI\\
+    }
+    \lrefstep{(D3-1)}{if}{
+        \IF ~(POPWORD(w,index+1)\in \domt)~\\
+        &\THEN\ \nt{
+            b:\left[\begin{array}{l}
+                \pre{(D3-1)}\And POPWORD(w,index+1)\in\domt,\\
+                \post{(D2)}
+            \end{array}\right]
+        }{(D3-1-1)} \\ 
+        &\ELSE\ \nt{
+            b:\left[\begin{array}{l}
+                \pre{(D3-1)}\And POPWORD(w,index+1)\notin\domt,\\
+                \post{(D2)}
+            \end{array}\right]
+        }{(D3-1-2)}\\
+        &\FI \\
+    }
+    \lrefstep{(D3-1-1)}{ass, func}{
+        doDelword(w, index +1);
+    }\\
+    \lrefstep{(D3-1-2)}{Ass and $POPWORD(w,index+1)\notin\domt 
+                \Implies \post(D2) =\True$ }{
+        skip;
+    }\\
+    \lrefstep{(C3-2)}{$index \geq |w| \And index \leq |w| \Implies 
+    index = |w|$ and definition of $\post{(D2)}$}{
+        t\Ass t: w\mapsto 0;
+    }
+\end{align*}
 \end{document}
