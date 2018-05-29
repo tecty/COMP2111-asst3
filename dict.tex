@@ -25,7 +25,7 @@
 \author{Ruofei HUANG(z5141448)\and
 Anqi ZHU(z5141541)
 }
-
+ 
 % custom command for ass3
 \newcommand{\domt}{\textbf{dom}(t)}
 \newcommand{\WORD}{\textbf{word }}
@@ -195,32 +195,19 @@ For the $delword$ we proof:
 \end{align*}
 
 \section{Task 3}
-We derive our code in to five parts by $init$, data type's operations and a 
-$popWord$ for recursive calls. 
-\subsection{init}
-From the spec we have:
-\begin{align*}
-    &\domt =\{\epsilon\} \And f(t)= \phi\\
-    \refstep{ass}{t \Ass \{\epsilon \mapsto 0\}}
-\end{align*}
-
-\subsection{popWord}
-We would like to define a semantic function $popWord(var\ word, var\ index)$ 
-that returns a substring of the word w starting from the first letter to the 
-index'th letter.
-A popWord is for us to have a easily use recursive calls, it is also a bridge 
-between C and our Toy language\footnote{This fucntion would not
-appear in our C code, the pointer to the node would be solve this problem.And 
-pointer is a difficult part for Toy Language to express and proof.}. The purpose
-of this function is to pop the first given letters of a given word. 
-\subsubsection{Math Function}
+\subsection{Pre-defined function calls}
+Before refining the operations in $DictA$ into toy language, we would like to 
+first define some useful function calls that helps building our later refinement 
+more close to the real c program constructions.
+\subsubsection{$POPWORD$}
+The semantic function $POPWORD$ returns a substring $w'$ of the word $w$ 
+starting from the first letter to the $index$'th letter of $w$. The definition 
+of the function and corresponding toy language function is as below:\\\\
+\textbf{Definition of $POPWORD$}
 \begin{gather*}
-    POPWORD(w,i) = w' 
-    \\
-    where \  w,w' \in \WORD \And i \in \nat \And w' \leq w \And |w'| = i
+    POPWORD(w,i) = w'\ \ \ \ \ \ where\ w' \leq w \And |w'| = i
 \end{gather*}
-
-\subsubsection{Toy Language Function}
+\textbf{Toy language function of $popWord$}
 \begin{gather*}
     \FUNC\ popWord(\VALUE\ w, \VALUE\ i )\cdot\\
     \qquad \nt{
@@ -230,10 +217,101 @@ of this function is to pop the first given letters of a given word.
         ]; \RETURN\ w'  
     }{(P1)}
 \end{gather*}
-% TODO: derive code for popWord 
-
-
-\subsection{addword}
+This function helps us to build our refinement as close to the trie construction 
+in c programs as possible. (In c programs, words are splitted into prefixes in 
+increasing length and checked in the trie recursively.)
+\subsubsection{$doAddword$}
+Using the previous definition of $POPWORD$, we would like to develop a 
+corresponding function call named 
+$doAddword(\textbf{var}\ w, \textbf{var}\ index)$
+that allows using a variable $i$ to locate which prefix of $w$(or say which 
+sub-trie of $t$) the procedure currently is checking at during the entire 
+word-adding operation. All the prefixes of $w$ should exist in $t$ eventually, 
+so if the current prefix $POPWORD(w, i)$ does not exist, $doAddword$ will add 
+the new prefix into $t$ and continue searching for the next prefix 
+$POPWORD(w, i+1)$. The definition of the function and the refinement of its 
+linking procedure is as follows.\\\\
+\textbf{Refinement of the procedure in doAddword}
+\begin{gather*}
+    \text{something to write here}
+\end{gather*}
+\textbf{Refinement of the procedure in doAddword}
+\begin{gather*}
+    \text{something to write here}
+\end{gather*}
+\subsubsection{$doCheckword$}
+Similarly to $doAddword$, we would also develop a corresponding function call 
+named $doCheckword(\textbf{var}\ w, \textbf{var}\ index)$ which will search the
+complete word $w$ in $t$ based on the precondition that all prefixes of $w$ with
+length no longer than $index$ are guaranteed to exist in $t$.
+The definition of the function and the 
+refinement of its linking procedure is as follows.\\\\
+\textbf{Definition of doCheckword}
+\begin{gather*}
+    \FUNC\ doCheckword(\VALUE\ w, \VALUE\ index:\nat ):\mathbb{B}\cdot \\
+        \qquad\VAR\ b\cdot 
+        \nt{
+            b: 
+            \left[\begin{array}{l}
+                0\leq index \leq |w|\And\\
+                \All{w'\leq w\And |w'|\leq index}{w'\in\domt},\\
+                b = (\All{w' \leq w}{w'\in \domt} \And t(w)=1)
+            \end{array}
+            \right]
+        }{(C2)} 
+        ;\RETURN\ b
+\end{gather*}
+\textbf{Refinement of the procedure in doCheckword}
+\begin{align*}
+    \lrefstep{(C2)}{if}{
+        \IF ~ index < |w| ~ \\ 
+        &\THEN 
+        \nt{
+            b:[ index < |w|\And \pre{(C2)}, \post{(C2)}]
+        }{(C3-1)} \\
+        &\ELSE 
+        \nt{
+            b:[ index \geq |w| \And \pre{(C2)}, \post{(C2)}]
+        }{(C3-2)}\\
+        &\FI\\
+    }
+    % TODO: try to use an early return, but there is not in Toy languague
+    %       How to check whether the prefix is in the dom(t) 
+    \lrefstep{(C3-1)}{if}{
+        \IF ~(popWord(w,index+1)\in \domt)~\\
+        &\THEN\ \nt{
+            b:\left[\begin{array}{l}
+                \pre{(C3-1)}\And popWord(w,index+1)\in\domt,\\
+                \post{(C2)}
+            \end{array}\right]
+        }{(C3-1-1)} \\ 
+        &\ELSE\ \nt{
+            b:\left[\begin{array}{l}
+                \pre{(C3-1)}\And popWord(w,index+1)\notin\domt,\\
+                \post{(C2)}
+            \end{array}\right]
+        }{(C3-1-2)}\\
+        &\FI \\
+    }
+    \lrefstep{(C3-1-1)}{ass, func}{
+        b\Ass doCheckword(w, index +1);
+    }\\
+    \lrefstep{(C3-1-2)}{Ass and $popWord(w,index+1)\notin\domt 
+                \Implies b = \False$ }{
+        b\Ass \False
+    }\\
+    \lrefstep{(C3-2)}{$index \geq |w| \And index \leq |w| \Implies 
+    index = |w|$ and definition of $\post{(C2)}$}{
+        b\Ass (t(w) = 1) 
+    }
+\end{align*}
+\subsection{Refinement of Initialisation}
+From the spec we have:
+\begin{align*}
+    &\domt =\{\epsilon\} \And f(t)= \phi\\
+    \refstep{ass}{t \Ass \{\epsilon \mapsto 0\}}
+\end{align*}
+\subsection{Refinement of $addword$}
 From the spec\footnote{Definition of this is in the Assignment 3 requirements of
 cs2111.} we have:
 \begin{gather*}
@@ -254,7 +332,7 @@ cs2111.} we have:
         \}]
     }
 \end{align*}
-\subsection{checkword}
+\subsection{Refinement of $checkword$}
 From the spec we have:
 \begin{gather*}
     \FUNC\ checkword^{DictA}(\VALUE\ w):\mathbb{B}\cdot \\
@@ -274,70 +352,7 @@ From the spec we have:
         b\Ass doCheckword(w, 0);
     }
 \end{align*}
-$doCheckword()$ is a recursive function call that does the major checking work 
-through the whole trie $t$ with a variable $i$ to locate which sub-trie it is 
-checking in. The definition of the function and the refinement of
-its linking procedure is as follows.
-\subsubsection{Definition of doCheckword}  
-\begin{gather*}
-    \FUNC\ doCheckword(\VALUE\ w, \VALUE\ index:\nat ):\mathbb{B}\cdot \\
-        \qquad\VAR\ b\cdot 
-        \nt{
-            b: 
-            \left[\begin{array}{l}
-                0\leq index \leq |w|\And\\
-                \All{w'\leq w\And |w'|\leq index}{w'\in\domt},\\
-                b = (\All{w' \leq w}{w'\in \domt} \And t(w)=1)
-            \end{array}
-            \right]
-        }{(C2)} 
-        ;\RETURN\ b
-\end{gather*}
-\subsubsection{Refinement of the procedure in doCheckword}
-\begin{align*}
-    \lrefstep{(C2)}{if}{
-        \IF ~ index < |w| ~ \\ 
-        &\THEN 
-        \nt{
-            b:[ index < |w|\And \pre{(C2)}, \post{(C2)}]
-        }{(C3-1)} \\
-        &\ELSE 
-        \nt{
-            b:[ index \geq |w| \And \pre{(C2)}, \post{(C2)}]
-        }{(C3-2)}\\
-        &\FI\\
-    }
-    % TODO: try to use an early return, but there is not in Toy languague
-    %       How to check whether the prefix is in the dom(t) 
-    \lrefstep{(C3-1)}{if}{
-        \IF ~(POPWORD(w,index+1)\in \domt)~\\
-        &\THEN\ \nt{
-            b:\left[\begin{array}{l}
-                \pre{(C3-1)}\And POPWORD(w,index+1)\in\domt,\\
-                \post{(C2)}
-            \end{array}\right]
-        }{(C3-1-1)} \\ 
-        &\ELSE\ \nt{
-            b:\left[\begin{array}{l}
-                \pre{(C3-1)}\And POPWORD(w,index+1)\notin\domt,\\
-                \post{(C2)}
-            \end{array}\right]
-        }{(C3-1-2)}\\
-        &\FI \\
-    }
-    \lrefstep{(C3-1-1)}{ass, func}{
-        b\Ass doCheckword(w, index +1);
-    }\\
-    \lrefstep{(C3-1-2)}{Ass and $POPWORD(w,index+1)\notin\domt 
-                \Implies b = \False$ }{
-        b\Ass \False
-    }\\
-    \lrefstep{(C3-2)}{$index \geq |w| \And index \leq |w| \Implies 
-    index = |w|$ and definition of $\post{(C2)}$}{
-        b\Ass (t(w) = 1) 
-    }
-\end{align*}
-\subsection{delword}
+\subsection{Refinement of $delword$}
 From the spec we have:
 \begin{gather*}
     \PROC\ delword^{DictA}(\VALUE\ w)\\
