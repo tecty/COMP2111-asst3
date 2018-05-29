@@ -200,7 +200,8 @@ For the $delword$ we proof:
 \end{align*}
 
 \section{Task 3}
-We derive our code in to fours part by $init$ and its operations. 
+We derive our code in to five parts by $init$, data type's operations and a 
+$popWord$ for recursive calls. 
 \subsection{init}
 From the spec we have:
 \begin{align*}
@@ -208,12 +209,36 @@ From the spec we have:
     \refstep{ass}{t \Ass \{\epsilon \mapsto 0\}}
 \end{align*}
 
-\subsection{addword}
-From the spec\footnote{Define in the Assignment 3 requirement of cs2111}
- we have:
+\subsection{popWord}
+A popWord is for us to have a easily use recursive calls, it is also a bridge 
+between C and our Toy language\footnote{This fucntion would not
+appear in our C code, the pointer to the node would be solve this problem.And 
+pointer is a difficult part for Toy Language to express and proof.}. The purpose
+of this function is to pop the first given letters of a given word. 
+\subsubsection{Math Function}
 \begin{gather*}
-    \PROC\ addword^{DictA}(\WORD w)\cdot \\
-        \qquad   
+    POPWORD(w,i) = w' 
+    \\
+    where \  w,w' \in \WORD \And i \in \nat \And w' \leq w \And |w'| = i
+\end{gather*}
+
+\subsubsection{Toy Language Function}
+\begin{gather*}
+    \FUNC\ popWord(\VALUE\ w, \VALUE\ i )\cdot\\
+    \qquad \nt{
+        \VAR\ w' \cdot w':[
+            i \leq |w|,
+            w'\leq w \And |w'| = i
+        ]; \RETURN\ w'  
+    }{(P1)}
+\end{gather*}
+
+\subsection{addword}
+From the spec\footnote{Definition of this is in the Assignment 3 requirements of
+cs2111.} we have:
+\begin{gather*}
+    \PROC\ addword^{DictA}(\VALUE\ w)\cdot \\
+        \qquad
         \nt{
             b, t:[\True, b = b_0\And t = t_0\cup \{w\mapsto 1\}\cup 
             \{
@@ -232,7 +257,7 @@ From the spec\footnote{Define in the Assignment 3 requirement of cs2111}
 \subsection{checkword}
 From the spec we have:
 \begin{gather*}
-    \FUNC\ checkword^{DictA}(\WORD w)\\
+    \FUNC\ checkword^{DictA}(\VALUE\ w)\\
         \qquad
         \nt{
             \mathbb{B}\cdot \VAR\ b\cdot b, t:
@@ -252,7 +277,7 @@ From the spec we have:
 Where we define a recursive procedure call to do the dirty work also align the 
 pre and post condition: 
 \begin{gather*}
-    \FUNC\ doCheckword(\WORD w, \VAR\ index:\nat )\\
+    \FUNC\ doCheckword(\VALUE\ w, \VALUE\ index:\nat )\\
         \qquad
         \nt{
             \mathbb{B}\cdot \VAR\ b\cdot b, \VAR\ index
@@ -279,7 +304,7 @@ pre and post condition:
 \subsection{delword}
 From the spec we have:
 \begin{gather*}
-    \PROC\ delword^{DictA}(\WORD w)\\
+    \PROC\ delword^{DictA}(\VALUE\ w)\\
         \qquad
         \nt{
             \cdot b, t:
