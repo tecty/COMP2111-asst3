@@ -202,21 +202,29 @@ more close to the real c program constructions.
 \subsubsection{$POPWORD$}
 The semantic function $POPWORD$ returns a substring $w'$ of the word $w$ 
 starting from the first letter to the $index$'th letter of $w$. The definition 
-of the function and corresponding toy language function is as below:\\\\
+of the function and corresponding function call is as below:\\\\
 \textbf{Definition of $POPWORD$}
 \begin{gather*}
     POPWORD(w,i) = w'\ \ \ \ \ \ where\ w' \leq w \And |w'| = i
 \end{gather*}
-\textbf{Toy language function of $popWord$}
+\textbf{Definition of the function call $popWord$}
 \begin{gather*}
-    \FUNC\ popWord(\VALUE\ w, \VALUE\ i )\cdot\\
-    \qquad \nt{
-        \VAR\ w' \cdot w':[
+    \FUNC\ popWord(\VALUE\ w, \VALUE\ i ): \WORD\cdot\\
+    \qquad \VAR\ w' \cdot 
+    \nt{
+        w':[
             i \leq |w|,
             w'\leq w \And |w'| = i
-        ]; \RETURN\ w'  
+        ];  
     }{(P1)}
+    \RETURN\ w' 
 \end{gather*}
+\textbf{Refinement of the procedure in $popWord$}
+\begin{align*}
+    \lrefstep{(P1)}{$|w[0..i-1]| = i \And w[0..i-1] \leq w$}{
+        w'\Ass w[0..i-1]
+    }
+\end{align*}
 This function helps us to build our refinement as close to the trie construction 
 in c programs as possible. (In c programs, words are splitted into prefixes in 
 increasing length and checked in the trie recursively.)
@@ -226,19 +234,108 @@ corresponding function call named
 $doAddword(\textbf{var}\ w, \textbf{var}\ index)$
 that allows using a variable $i$ to locate which prefix of $w$(or say which 
 sub-trie of $t$) the procedure currently is checking at during the entire 
-word-adding operation. All the prefixes of $w$ should exist in $t$ eventually, 
+word-adding operation. \\\\
+All the prefixes of $w$ should exist in $t$ eventually, 
 so if the current prefix $POPWORD(w, i)$ does not exist, $doAddword$ will add 
 the new prefix into $t$ and continue searching for the next prefix 
-$POPWORD(w, i+1)$. The definition of the function and the refinement of its 
-linking procedure is as follows.\\\\
-\textbf{Refinement of the procedure in doAddword}
+$POPWORD(w, i+1)$. Considering this and the fact that $t$ always initializes 
+with $\epsilon$ included, it is guaranteed that every $doAddword$ operation at 
+$i$ level will already have all prefixes of $w$ with length no longer than $i$ 
+exist in $t$, which satisfies the precondition of the function itself. The 
+definition of the function and the refinement of its linking procedure is as 
+follows.\\\\
+\textbf{Definition of doAddword}
 \begin{gather*}
-    \text{something to write here}
+    \PROC\ doAddword^{DictA}(\VALUE\ w,\VALUE\ index)\\
+        \qquad
+        \nt{
+            t:\left[\begin{array}{l}
+                0\leq index \leq |w|\And
+                \All{w'\leq w \And |w'|\leq index}{w'\in \domt},\\
+                t = {t_0\backslash\{w\mapsto 0 \} \cup\{w\mapsto 1\}
+                \cup\{w' < w\And w'\notin \domt | w'\mapsto 0\}}]
+            \end{array}
+            \right]
+        }{(A2)}
 \end{gather*}
 \textbf{Refinement of the procedure in doAddword}
+\begin{align*}
+    \lrefstep{(A2)}{if}{
+        \IF ~ index < |w| ~ \\ 
+        &\THEN 
+        \nt{
+            t:[ index < |w|\And \pre{(A2)}, \post{(A2)}]
+        }{(A3-1)} \\
+        &\ELSE 
+        \nt{
+            t:[ index \geq |w| \And \pre{(A2)}, \post{(A2)}]
+        }{(A3-2)}\\
+        &\FI\\
+    }
+    \lrefstep{(A3-1)}{seq}{
+        \nt{
+            t:\left[\begin{array}{l}
+                index \geq |w| \And \pre{(A2)}, \\
+                index \geq |w| \And \pre{(A2)}
+                \And POPWORD(w, index+1)\in\domt
+            \end{array}\right]
+        }{(A3-3)}
+        \\
+        &
+        \nt{
+            t:\left[\begin{array}{l}
+                index \geq |w| \And \pre{(A2)}
+                \And POPWORD(w, index+1)\in\domt,\\
+                \post{(A2)}
+            \end{array}\right]
+        }{(A3-4)}
+    }\\
+    \lrefstep{(A3-3)}{if}{
+        \IF ~(POPWORD(w,index+1)\in \domt)~\\
+        &\THEN\ \nt{
+            t:\left[\begin{array}{l}
+                \pre{(A3-3)}\And POPWORD(w,index+1)\in\domt,\\
+                \post{(A3-3)}
+            \end{array}\right]
+        }{(A3-3-1)} \\ 
+        &\ELSE\ \nt{
+            t:\left[\begin{array}{l}
+                \pre{(A3-3)}\And POPWORD(w,index+1)\notin\domt,\\
+                \post{(A3-3)}
+            \end{array}\right]
+        }{(A3-3-2)}\\
+        &\FI \\
+    }
+    \lrefstep{(A3-3-1)}{$POPWORD(w,index+1)\in\domt 
+        \Implies \post{(A3-3)}=\True$}{
+        skip;
+    }\\
+    \lrefstep{(A3-3-2)}{Ass}{
+        t \Ass t\cup \{ popWord(w,index) \mapsto 0\}
+    }\\
+    \lrefstep{(A3-4)}{proc}{
+        doAddword(w, index +1);
+    }\\
+    \lrefstep{(A3-2)}{$index \geq |w| \And index \leq |w| \Implies 
+        index = |w|$ and definition of $\post{(A2)}$}{
+        t \Ass t_0 \backslash \{ w\mapsto 0 \} \cup \{ w \mapsto 1\};
+    }
+\end{align*}
+We gather the code for the body of $doAddword$
 \begin{gather*}
-    \text{something to write here}
+    \IF\ ~index<|w|~\\
+    \THEN\ \\
+    \qquad \IF\ ~POPWORD(w,index+1)\in\domt~\\
+    \qquad \THEN\ skip;\\
+    \qquad \ELSE\\
+    \qquad\qquad t\Ass t \cup \{popWord(w,index)\mapsto 0 \}\\
+    \qquad \FI\ \\
+    \qquad doAddword(w, index +1);\\
+    \ELSE \\
+    \qquad t \Ass t_0 \backslash \{ w\mapsto 0 \} \cup \{ w \mapsto 1\};\\
+    \FI
 \end{gather*}
+
 \subsubsection{$doCheckword$}
 Similarly to $doAddword$, we would also develop a corresponding function call 
 named $doCheckword(\textbf{var}\ w, \textbf{var}\ index)$ which will search the
@@ -305,7 +402,65 @@ refinement of its linking procedure is as follows.\\\\
         b\Ass (t(w) = 1) 
     }
 \end{align*}
-\subsection{Refinement of Initialisation}
+\subsubsection{$doDelword$}
+Similarly to $doCheckword$, we would also develop a corresponding function call 
+named $doDelword(\textbf{var}\ w, \textbf{var}\ index)$ which will set the 
+result of $t(w)$ as 0 based on the precondition that all prefixes of $w$ with 
+length no longer than $index$ are guaranteed to exist in $t$. The definition of 
+the function and the refinement of its linking procedure is as follows.\\\\
+\textbf{Definition of doDelword}
+\begin{gather*}
+    \PROC\ doDelword^{DictA}(\VALUE\ w,\VALUE\ index)\\
+        \qquad
+        \nt{\begin{array}{l}
+            t:[0\leq index \leq |w|\And 
+            \All{w'\leq w \And |w'|\leq index}{w'\in \domt},\\
+            (w \notin \domt \OR t= t_0: w \mapsto 0)]
+        \end{array}}{(D2)}
+\end{gather*}
+\textbf{Refinement of the procedure in doDelword}
+\begin{align*}
+    \lrefstep{(D2)}{if}{
+        \IF ~ index < |w| ~ \\ 
+        &\THEN 
+        \nt{
+            t:[ index < |w|\And \pre{(D2)}, \post{(D2)}]
+        }{(D3-1)} \\
+        &\ELSE 
+        \nt{
+            t:[ index \geq |w| \And \pre{(D2)}, \post{(D2)}]
+        }{(C3-2)}\\
+        &\FI\\
+    }
+    \lrefstep{(D3-1)}{if}{
+        \IF ~(POPWORD(w,index+1)\in \domt)~\\
+        &\THEN\ \nt{
+            t:\left[\begin{array}{l}
+                \pre{(D3-1)}\And POPWORD(w,index+1)\in\domt,\\
+                \post{(D2)}
+            \end{array}\right]
+        }{(D3-1-1)} \\ 
+        &\ELSE\ \nt{
+            t:\left[\begin{array}{l}
+                \pre{(D3-1)}\And POPWORD(w,index+1)\notin\domt,\\
+                \post{(D2)}
+            \end{array}\right]
+        }{(D3-1-2)}\\
+        &\FI \\
+    }
+    \lrefstep{(D3-1-1)}{ass, func}{
+        doDelword(w, index +1);
+    }\\
+    \lrefstep{(D3-1-2)}{Ass and $POPWORD(w,index+1)\notin\domt 
+                \Implies \post(D2) =\True$ }{
+        skip;
+    }\\
+    \lrefstep{(D3-2)}{$index \geq |w| \And index \leq |w| \Implies 
+    index = |w|$ and definition of $\post{(D2)}$}{
+        t\Ass t: w\mapsto 0;
+    }
+\end{align*}
+\subsection{Refinement of $init$}
 From the spec we have:
 \begin{align*}
     &\domt =\{\epsilon\} \And f(t)= \phi\\
@@ -327,9 +482,11 @@ cs2111.} we have:
 \begin{align*}
     \lrefstep{(A1)}{c-frame}{
         t:[\True,t = t_0\cup \{w\mapsto 1\}\cup 
-        \{
-            w' < w \And w' \notin \domt | w' \mapsto 0
-        \}]
+        \{w' < w \And w' \notin \domt | w' \mapsto 0\}]
+    }\\
+    \refstep{proc, $ 0 \leq |w|$ and $\epsilon\in\domt$ since 
+        $init^{DictA}$}{
+        doAddword(w, 0)
     }
 \end{align*}
 \subsection{Refinement of $checkword$}
@@ -363,6 +520,13 @@ From the spec we have:
             (w \notin \domt \OR t\Ass t: w \mapsto 0)]
         }{(D1)}    
 \end{gather*}
-
-
+\begin{align*}
+    \lrefstep{(D1)}{c-frame}{
+        t:[\True ,(w \notin \domt \OR t= t_0: w \mapsto 0)]
+    }\\
+    \refstep{proc, $ 0 \leq |w|$ and $\epsilon\in\domt$ since 
+        $init^{DictA}$}{
+        doDelword(w, 0);
+    }
+\end{align*}
 \end{document}
