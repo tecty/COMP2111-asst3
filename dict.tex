@@ -408,7 +408,7 @@ We gather the code of $doCheckword$ below:
     \THEN \\
     \qquad \IF\ ~POPWORD(w,index+1) \in \domt~ \\
     \qquad \THEN\ skip; \\
-    \qquad \ELSE\ doCheckword(w,index+1); \\
+    \qquad \ELSE\ \RETURN\ doCheckword(w,index+1); \\
     \qquad \FI \\
     \ELSE\ b\Ass (t(w) = 1);\\
     \FI 
@@ -478,7 +478,7 @@ We gather the code of $doDelword$ below:
     \qquad \IF\ ~POPWORD(w, index +1)\in\domt ~ \\
     \qquad \THEN\ doDelword(w, index+1);\\
     \qquad \ELSE\ skip;\\
-    \qquad \FI
+    \qquad \FI \\
     \ELSE\ t\Ass t: w \mapsto 0;\\
     \FI
 \end{gather*}

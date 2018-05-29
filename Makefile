@@ -9,7 +9,7 @@ TARGETS	:= testdict
 all: testdict
 
 testdict: dict.c dict.h testdict.c
-	$(CC) $(CFLAGS) -c dict.c 
+	$(CC) $(CFLAGS) -c dict.c
 	$(CC) $(CFLAGS) dict.o testdict.c -o testdict
 
 dict.pdf: dict.tex
