@@ -130,7 +130,8 @@ We would like to define the operations of DictA as follows:
 \end{gather*} 
 \subsection{Proof of Refinement}
 Now we would like to start proving the refinements of the initialization and 
-each operation from $t$ to $W$. 
+each operation from $t$ to $W$. So that we can prove $DictA$ is a data 
+refinement of $Dict$.
 \subsubsection{Refinement proof for $init$}
 We start from proving the refinement between $init^{DictA}$ and $init^{Dict}$.
 \begin{align*}
@@ -212,7 +213,7 @@ of the function and corresponding function call is as below:\\\\
     }{(P1)}
     \RETURN\ w' 
 \end{gather*}
-\textbf{Refinement of the procedure in $popWord$}
+\textbf{Specification of the procedure in $popWord$}
 \begin{align*}
     \lrefstep{(P1)}{$|w[0..i-1]| = i \And w[0..i-1] \leq w$}{
         w'\Ass w[0..i-1]
@@ -227,17 +228,18 @@ corresponding function call named
 $doAddword(\textbf{var}\ w, \textbf{var}\ index)$
 that allows using a variable $i$ to locate which prefix of $w$(or say which 
 sub-trie of $t$) the procedure currently is checking at during the entire 
-word-adding operation. \\\\
+word-adding operation. This function will be called by the function $addword$ of
+$DictA$ to do most of the adding-word job.\\\\
 All the prefixes of $w$ should exist in $t$ eventually, 
 so if the current prefix $POPWORD(w, i)$ does not exist, $doAddword$ will add 
 the new prefix into $t$ and continue searching for the next prefix 
 $POPWORD(w, i+1)$. Considering this and the fact that $t$ always initializes 
 with $\epsilon$ included, it is guaranteed that every $doAddword$ operation at 
 $i$ level will already have all prefixes of $w$ with length no longer than $i$ 
-exist in $t$, which satisfies the precondition of the function itself. The 
-definition of the function and the refinement of its linking procedure is as 
-follows.\\\\
-\textbf{Definition of doAddword}
+exist in $t$, which satisfies the precondition of the $doAddword$ function 
+itself. The definition of the function and the refinement of its linking 
+procedure is as follows.\\\\
+\textbf{Definition of $doAddword$}
 \begin{gather*}
     \PROC\ doAddword^{DictA}(\VALUE\ w,\VALUE\ index)\\
         \qquad
@@ -251,7 +253,7 @@ follows.\\\\
             \right]
         }{(A2)}
 \end{gather*}
-\textbf{Refinement of the procedure in doAddword}
+\textbf{Specification of the procedure in $doAddword$}
 \begin{align*}
     \lrefstep{(A2)}{if}{
         \IF ~ index < |w| ~ \\ 
@@ -268,7 +270,7 @@ follows.\\\\
     \lrefstep{(A3-1)}{seq}{
         \nt{
             t:\left[\begin{array}{l}
-                index \geq |w| \And \pre{(A2)}, \\
+                index < |w| \And \pre{(A2)}, \\
                 index \geq |w| \And \pre{(A2)}
                 \And POPWORD(w, index+1)\in\domt
             \end{array}\right]
@@ -304,14 +306,14 @@ follows.\\\\
         skip;
     }\\
     \lrefstep{(A3-3-2)}{Ass}{
-        t \Ass t\cup \{ popWord(w,index) \mapsto 0\}
+        t \Ass t\cup \{ popWord(w,index) \mapsto 0\};
     }\\
     \lrefstep{(A3-4)}{proc}{
-        doAddword(w, index +1);
+        doAddword(w, index +1)
     }\\
     \lrefstep{(A3-2)}{$index \geq |w| \And index \leq |w| \Implies 
         index = |w|$ and definition of $\post{(A2)}$}{
-        t \Ass t_0 \backslash \{ w\mapsto 0 \} \cup \{ w \mapsto 1\};
+        t \Ass t_0 \backslash \{ w\mapsto 0 \} \cup \{ w \mapsto 1\}
     }
 \end{align*}
 We gather the code for the body of $doAddword$
@@ -321,11 +323,11 @@ We gather the code for the body of $doAddword$
     \qquad \IF\ ~POPWORD(w,index+1)\in\domt~\\
     \qquad \THEN\ skip;\\
     \qquad \ELSE\\
-    \qquad\qquad t\Ass t \cup \{popWord(w,index)\mapsto 0 \}\\
+    \qquad\qquad t\Ass t \cup \{popWord(w,index)\mapsto 0 \};\\
     \qquad \FI\ \\
-    \qquad doAddword(w, index +1);\\
+    \qquad doAddword(w, index +1)\\
     \ELSE \\
-    \qquad t \Ass t_0 \backslash \{ w\mapsto 0 \} \cup \{ w \mapsto 1\};\\
+    \qquad t \Ass t_0 \backslash \{ w\mapsto 0 \} \cup \{ w \mapsto 1\}\\
     \FI
 \end{gather*}
 
@@ -333,9 +335,10 @@ We gather the code for the body of $doAddword$
 Similarly to $doAddword$, we would also develop a corresponding function call 
 named $doCheckword(\textbf{var}\ w, \textbf{var}\ index)$ which will search the
 complete word $w$ in $t$ based on the precondition that all prefixes of $w$ with
-length no longer than $index$ are guaranteed to exist in $t$.
-The definition of the function and the 
-refinement of its linking procedure is as follows.\\\\
+length no longer than $index$ are guaranteed to exist in $t$. This function 
+would be called by $checkword$ of $DictA$ to do most of the checking-word job.
+The definition of the function and the refinement of its linking procedure is as
+follows.\\\\
 \textbf{Definition of doCheckword}
 \begin{gather*}
     \FUNC\ doCheckword(\VALUE\ w, \VALUE\ index:\nat ):\mathbb{B}\cdot \\
@@ -351,7 +354,7 @@ refinement of its linking procedure is as follows.\\\\
         }{(C2)} 
         ;\RETURN\ b
 \end{gather*}
-\textbf{Refinement of the procedure in doCheckword}
+\textbf{Specification of the procedure in doCheckword}
 \begin{align*}
     \lrefstep{(C2)}{if}{
         \IF ~ index < |w| ~ \\ 
@@ -384,7 +387,7 @@ refinement of its linking procedure is as follows.\\\\
         &\FI \\
     }
     \lrefstep{(C3-1-1)}{ass, func}{
-        b\Ass doCheckword(w, index +1);
+        b\Ass doCheckword(w, index +1)
     }\\
     \lrefstep{(C3-1-2)}{Ass and $popWord(w,index+1)\notin\domt 
                 \Implies b = \False$ }{
@@ -400,18 +403,18 @@ We gather the code of $doCheckword$ below:
     \IF\ ~index < |w|~ \\
     \THEN \\
     \qquad \IF\ ~POPWORD(w,index+1) \in \domt~ \\
-    \qquad \THEN\ skip; \\
-    \qquad \ELSE\ \RETURN\ doCheckword(w,index+1); \\
+    \qquad \THEN\ skip\\
+    \qquad \ELSE\ \RETURN\ doCheckword(w,index+1) \\
     \qquad \FI \\
-    \ELSE\ b\Ass (t(w) = 1);\\
+    \ELSE\ b\Ass (t(w) = 1)\\
     \FI 
 \end{gather*}
 \subsubsection{$doDelword$}
 Similarly to $doCheckword$, we would also develop a corresponding function call 
 named $doDelword(\textbf{var}\ w, \textbf{var}\ index)$ which will set the 
-result of $t(w)$ as 0 based on the precondition that all prefixes of $w$ with 
-length no longer than $index$ are guaranteed to exist in $t$. The definition of 
-the function and the refinement of its linking procedure is as follows.\\\\
+result of $t(w)$ as 0. This function would be called by $delword$ of $DictA$ to
+do most of the deleting-word job. The definition of the function and the 
+refinement of its linking procedure is as follows.\\\\
 \textbf{Definition of doDelword}
 \begin{gather*}
     \PROC\ doDelword^{DictA}(\VALUE\ w,\VALUE\ index)\\
@@ -422,7 +425,7 @@ the function and the refinement of its linking procedure is as follows.\\\\
             (w \notin \domt \OR t= t_0: w \mapsto 0)
         \end{array}\right]}{(D2)}
 \end{gather*}
-\textbf{Refinement of the procedure in doDelword}
+\textbf{Specification of the procedure in doDelword}
 \begin{align*}
     \lrefstep{(D2)}{if}{
         \IF ~ index < |w| ~ \\ 
@@ -453,15 +456,15 @@ the function and the refinement of its linking procedure is as follows.\\\\
         &\FI \\
     }
     \lrefstep{(D3-1-1)}{ass, func}{
-        doDelword(w, index +1);
+        doDelword(w, index +1)
     }\\
     \lrefstep{(D3-1-2)}{Ass and $POPWORD(w,index+1)\notin\domt 
                 \Implies \post(D2) =\True$ }{
-        skip;
+        skip
     }\\
     \lrefstep{(D3-2)}{$index \geq |w| \And index \leq |w| \Implies 
     index = |w|$ and definition of $\post{(D2)}$}{
-        t\Ass t: w\mapsto 0;
+        t\Ass (t: w\mapsto 0)
     }
 \end{align*}
 We gather the code of $doDelword$ below:
@@ -469,19 +472,21 @@ We gather the code of $doDelword$ below:
     \IF\ ~index < |w|~ \\
     \THEN\ \\
     \qquad \IF\ ~POPWORD(w, index +1)\in\domt ~ \\
-    \qquad \THEN\ doDelword(w, index+1);\\
-    \qquad \ELSE\ skip;\\
+    \qquad \THEN\ doDelword(w, index+1)\\
+    \qquad \ELSE\ skip\\
     \qquad \FI \\
-    \ELSE\ t\Ass t: w \mapsto 0;\\
+    \ELSE\ t\Ass (t: w \mapsto 0)\\
     \FI
 \end{gather*}
-\subsection{Refinement of $init$}
+Now we could specify the initialisation and all operations of $DictA$ into toy 
+language, in which above functions will be called to do the corresponding jobs. 
+\subsection{Specification of $init$}
 From the spec we have:
 \begin{align*}
     &\domt =\{\epsilon\} \And f(t)= \phi\\
     \refstep{ass}{t \Ass \{\epsilon \mapsto 0\}}
 \end{align*}
-\subsection{Refinement of $addword$}
+\subsection{Specification of $addword$}
 From the spec\footnote{Definition of this is in the Assignment 3 requirements of
 cs2111.} we have:
 \begin{gather*}
@@ -504,7 +509,7 @@ cs2111.} we have:
         doAddword(w, 0)
     }
 \end{align*}
-\subsection{Refinement of $checkword$}
+\subsection{Specification of $checkword$}
 From the spec we have:
 \begin{gather*}
     \FUNC\ checkword^{DictA}(\VALUE\ w):\mathbb{B}\cdot \\
@@ -524,7 +529,7 @@ From the spec we have:
         b\Ass doCheckword(w, 0);
     }
 \end{align*}
-\subsection{Refinement of $delword$}
+\subsection{Specification of $delword$}
 From the spec we have:
 \begin{gather*}
     \PROC\ delword^{DictA}(\VALUE\ w)\\
@@ -541,15 +546,22 @@ From the spec we have:
     }\\
     \refstep{proc, $ 0 \leq |w|$ and $\epsilon\in\domt$ since 
         $init^{DictA}$}{
-        doDelword(w, 0);
+        doDelword(w, 0)
     } 
 \end{align*}
 \subsection{Task 4}
 Now we would translate our data refinement to C functions to match the
-prototypes given in dict.h. There are some significant differences between the 
-structure of a trie used in c functions and in our data refinement (for example,
-the tries in c functions can be operated as nodes but they are operated as sets
-in our data refinement). However, it should be noted that the logic used on both
-sides is the same (they both use recursive call to derive the final result).
+prototypes given in dict.h. \\\\
+There are some significant differences between the structure of a trie used in c 
+functions and in our data refinement (because the tries in c functions can be 
+operated as nodes but they are operated as sets in our data refinement). The 
+created new word/prefix attaches to the current trie by being linked to a pointer 
+in its sub-trie, while in our data refinement, $t$ absorbs the new word/prefix 
+$w$ by combining a new function subset containing $w$ in its domain. Also, the 
+trie in c functions uses sub-tries to recursively find the next extend prefix/word,
+while in our data refinement, we uses the extension of a substring of $w$ ($POPWORD$)
+to represent the next level of sub-trie.\\\\
+However, it should be noted that the logic used on both sides is the same (they 
+both use recursive call to derive the final result).
 \lstinputlisting{dict.c}
 \end{document}
