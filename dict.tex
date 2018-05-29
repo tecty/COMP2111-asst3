@@ -47,8 +47,8 @@ Anqi ZHU(z5141541)
 \section{Task 1}
 \subsection{Some useful symbol definitions about manipulating $\textbf{word}$s }
 A $\textbf{word}$, as mentioned in the assignment specification, is defined as a 
-finite sequence of letters over $L = {'a', .., 'z'}$. The specification already 
-defines the relationship of '$\leq$' between a $\textbf{word}\ v$ and a 
+finite sequence of letters over $L = \{'a', .., 'z'\}$. The specification 
+already defines the relationship of '$\leq$' between a $\textbf{word}\ v$ and a 
 $\textbf{word}\ w$ (which means $v$ is a prefix of $w$ or $w$ itself if 
 $v\leq w$). 
 \\\\
@@ -375,16 +375,16 @@ refinement of its linking procedure is as follows.\\\\
     % TODO: try to use an early return, but there is not in Toy languague
     %       How to check whether the prefix is in the dom(t) 
     \lrefstep{(C3-1)}{if}{
-        \IF ~(popWord(w,index+1)\in \domt)~\\
+        \IF ~(POPWORD(w,index+1)\in \domt)~\\
         &\THEN\ \nt{
             b:\left[\begin{array}{l}
-                \pre{(C3-1)}\And popWord(w,index+1)\in\domt,\\
+                \pre{(C3-1)}\And POPWORD(w,index+1)\in\domt,\\
                 \post{(C2)}
             \end{array}\right]
         }{(C3-1-1)} \\ 
         &\ELSE\ \nt{
             b:\left[\begin{array}{l}
-                \pre{(C3-1)}\And popWord(w,index+1)\notin\domt,\\
+                \pre{(C3-1)}\And POPWORD(w,index+1)\notin\domt,\\
                 \post{(C2)}
             \end{array}\right]
         }{(C3-1-2)}\\
@@ -402,6 +402,17 @@ refinement of its linking procedure is as follows.\\\\
         b\Ass (t(w) = 1) 
     }
 \end{align*}
+We gather the code of $doCheckword$ below:
+\begin{gather*}
+    \IF\ ~index < |w|~ \\
+    \THEN \\
+    \qquad \IF\ ~POPWORD(w,index+1) \in \domt~ \\
+    \qquad \THEN\ skip; \\
+    \qquad \ELSE\ doCheckword(w,index+1); \\
+    \qquad \FI \\
+    \ELSE\ b\Ass (t(w) = 1);\\
+    \FI 
+\end{gather*}
 \subsubsection{$doDelword$}
 Similarly to $doCheckword$, we would also develop a corresponding function call 
 named $doDelword(\textbf{var}\ w, \textbf{var}\ index)$ which will set the 
@@ -412,11 +423,11 @@ the function and the refinement of its linking procedure is as follows.\\\\
 \begin{gather*}
     \PROC\ doDelword^{DictA}(\VALUE\ w,\VALUE\ index)\\
         \qquad
-        \nt{\begin{array}{l}
-            t:[0\leq index \leq |w|\And 
+        \nt{t:\left[\begin{array}{l}
+            0\leq index \leq |w|\And 
             \All{w'\leq w \And |w'|\leq index}{w'\in \domt},\\
-            (w \notin \domt \OR t= t_0: w \mapsto 0)]
-        \end{array}}{(D2)}
+            (w \notin \domt \OR t= t_0: w \mapsto 0)
+        \end{array}\right]}{(D2)}
 \end{gather*}
 \textbf{Refinement of the procedure in doDelword}
 \begin{align*}
@@ -460,6 +471,17 @@ the function and the refinement of its linking procedure is as follows.\\\\
         t\Ass t: w\mapsto 0;
     }
 \end{align*}
+We gather the code of $doDelword$ below:
+\begin{gather*}
+    \IF\ ~index < |w|~ \\
+    \THEN\ \\
+    \qquad \IF\ ~POPWORD(w, index +1)\in\domt ~ \\
+    \qquad \THEN\ doDelword(w, index+1);\\
+    \qquad \ELSE\ skip;\\
+    \qquad \FI
+    \ELSE\ t\Ass t: w \mapsto 0;\\
+    \FI
+\end{gather*}
 \subsection{Refinement of $init$}
 From the spec we have:
 \begin{align*}
@@ -513,7 +535,7 @@ From the spec we have:
 From the spec we have:
 \begin{gather*}
     \PROC\ delword^{DictA}(\VALUE\ w)\\
-        \qquad
+        \qquad 
         \nt{
             \cdot b, t:
             [\True , b = b_0\And
