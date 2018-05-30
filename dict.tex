@@ -493,22 +493,47 @@ cs2111.} we have:
     \PROC\ addword^{DictA}(\VALUE\ w)\cdot \\
         \qquad
         \nt{
-            b, t:[\True, b = b_0\And t = t_0\cup \{w\mapsto 1\}\cup 
-            \{
-                w' < w \And w' \notin \domt | w' \mapsto 0
-            \}]
+            b, t:[\True, b = b_0\And t = {t_0\backslash\{w\mapsto 0 \} \cup\{w\mapsto 1\}\cup\{w' < w\And 
+            w'\notin \domt | w'\mapsto 0\}}]
         }{(A1)}
 \end{gather*}
 \begin{align*}
     \lrefstep{(A1)}{c-frame}{
-        t:[\True,t = t_0\cup \{w\mapsto 1\}\cup 
-        \{w' < w \And w' \notin \domt | w' \mapsto 0\}]
+        t:[\True,t = {t_0\backslash\{w\mapsto 0 \} \cup\{w\mapsto 1\}\cup\{w' < w\And 
+        w'\notin \domt | w'\mapsto 0\}}]
     }\\
-    \refstep{proc, $ 0 \leq |w|$ and $\epsilon\in\domt$ since 
-        $init^{DictA}$}{
+    \refstep{if}{
+        \IF ~w=\epsilon~\\
+        &\THEN\ \nt{
+            b:\left[\begin{array}{l}
+                \pre{(A1)}\And w=\epsilon,\\
+                \post{(A1)}
+            \end{array}\right]
+        }{(A1-s)} \\ 
+        &\ELSE\ \nt{
+            b:\left[\begin{array}{l}
+                \pre{(A1)}\And w\neq\epsilon,\\
+                \post{(A1)}
+            \end{array}\right]
+        }{(A1-c)}\\
+        &\FI \\
+    }
+    \lrefstep{(A1-s)}{$\epsilon$ already exists in $\domt$}{
+        t\Ass (t:w\mapsto 1)
+    }\\
+    \lrefstep{(A1-c)}{proc, $ 0 \leq |w|$ and $\epsilon\in\domt$ since 
+    $init^{DictA}$}{
         doAddword(w, 0)
     }
 \end{align*}
+We gather the code for the body of $addword$
+\begin{gather*}
+    \IF\ ~w=\epsilon~\\
+    \THEN\ t\Ass (t:w\mapsto 1)\\
+    \ELSE \\
+    \qquad doAddword(w, 0)\\
+    \FI
+\end{gather*}
 \subsection{Specification of $checkword$}
 From the spec we have:
 \begin{gather*}
@@ -523,12 +548,41 @@ From the spec we have:
     \lrefstep{(C1)}{c-frame}{
         b:[\True, b = (\All{w' \leq w}{w'\in \domt} \And t(w)=1)];
     }\\
-    \refstep{proc, $ 0 \leq |w|$ and $\epsilon\in\domt$ since 
+    \refstep{if}{
+        \IF ~w=\epsilon~\\
+        &\THEN\ \nt{
+            b:\left[\begin{array}{l}
+                \pre{(C1)}\And w=\epsilon,\\
+                \post{(C1)}
+            \end{array}\right]
+        }{(C1-s)} \\ 
+        &\ELSE\ \nt{
+            b:\left[\begin{array}{l}
+                \pre{(C1)}\And w\neq\epsilon,\\
+                \post{(C1)}
+            \end{array}\right]
+        }{(C1-c)}\\
+        &\FI \\
+    }
+    \lrefstep{(C1-s)}{$\epsilon$ already exists in $\domt$}{
+        b\Ass (t(w)=1) 
+    }\\
+    \lrefstep{(C1-c)}{proc, $ 0 \leq |w|$ and $\epsilon\in\domt$ since 
             $init^{DictA}$}
     {
         b\Ass doCheckword(w, 0);
     }
 \end{align*}
+We gather the code for the body of $checkword$
+\begin{gather*}
+    \IF\ ~w=\epsilon~\\
+    \THEN\ \\
+    \qquad b\Ass (t(w)=1);\\
+    \ELSE \\
+    \qquad b\Ass doCheckword(w, 0);\\
+    \FI\\
+    \textbf{return}\ b    
+\end{gather*}
 \subsection{Specification of $delword$}
 From the spec we have:
 \begin{gather*}
@@ -544,11 +598,39 @@ From the spec we have:
     \lrefstep{(D1)}{c-frame}{
         t:[\True ,(w \notin \domt \OR t= t_0: w \mapsto 0)]
     }\\
-    \refstep{proc, $ 0 \leq |w|$ and $\epsilon\in\domt$ since 
+    \refstep{if}{
+        \IF ~w=\epsilon~\\
+        &\THEN\ \nt{
+            b:\left[\begin{array}{l}
+                \pre{(D1)}\And w=\epsilon,\\
+                \post{(D1)}
+            \end{array}\right]
+        }{(D1-s)} \\ 
+        &\ELSE\ \nt{
+            b:\left[\begin{array}{l}
+                \pre{(D1)}\And w\neq\epsilon,\\
+                \post{(D1)}
+            \end{array}\right]
+        }{(D1-c)}\\
+        &\FI \\
+    }
+    \lrefstep{(D1-s)}{$\epsilon$ already exists in $\domt$}{
+        t\Ass (t: w\mapsto 0) 
+    }\\
+    \lrefstep{(D1-c)}{proc, $ 0 \leq |w|$ and $\epsilon\in\domt$ since 
         $init^{DictA}$}{
         doDelword(w, 0)
     } 
 \end{align*}
+We gather the code for the body of $delword$
+\begin{gather*}
+    \IF\ ~w=\epsilon~\\
+    \THEN\ \\
+    \qquad t\Ass (t: w\mapsto 0)\\
+    \ELSE \\
+    \qquad doDelword(w, 0)\\
+    \FI
+\end{gather*}
 \subsection{Task 4}
 Now we would translate our data refinement to C functions to match the
 prototypes given in dict.h. \\\\
